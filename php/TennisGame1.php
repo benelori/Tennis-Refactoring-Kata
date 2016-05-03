@@ -15,66 +15,96 @@ class TennisGame1 implements TennisGame
 
     public function wonPoint($playerName)
     {
-        if ('player1' == $playerName) {
+        if ($this->player1Name == $playerName) {
             $this->m_score1++;
         } else {
             $this->m_score2++;
         }
     }
 
+    private function deuceScenario() {
+        switch ($this->m_score1) {
+            case 0:
+                $score = "Love-All";
+                break;
+            case 1:
+                $score = "Fifteen-All";
+                break;
+            case 2:
+                $score = "Thirty-All";
+                break;
+            default:
+                $score = "Deuce";
+                break;
+        }
+
+        return $score;
+    }
+
+    private function winScenario() {
+        $minusResult = $this->m_score1 - $this->m_score2;
+        $result = abs($minusResult);
+        $score = $this->advantage($minusResult);
+        if ($this->winCondition($result)) {
+            $score = $this->win($minusResult);
+        }
+
+        return $score;
+    }
+
+    private function advantage($minusResult){
+        $test = ($this->advantageCondition($minusResult)) ? $this->player1Name : $this->player2Name;
+        return 'Advantage ' . $test;
+    }
+
+    private function win($minusResult){
+        $test = ($this->winCondition($minusResult)) ? $this->player1Name : $this->player2Name;
+        return 'Win for ' . $test;
+    }
+
+    private function advantageCondition($result) {
+        return $result == 1;
+    }
+
+    private function winCondition($result) {
+        return $result >= 2;
+    }
+
+    private function pointScenario() {
+        return $this->appendScore($this->m_score1) . '-' . $this->appendScore($this->m_score2);
+    }
+
+    private function appendScore($tempScore) {
+        $score='';
+        switch ($tempScore) {
+            case 0:
+                $score .= "Love";
+                break;
+            case 1:
+                $score .= "Fifteen";
+                break;
+            case 2:
+                $score .= "Thirty";
+                break;
+            default:
+                $score .= "Forty";
+                break;
+        }
+        return $score;
+    }
+
     public function getScore()
     {
-        $score = "";
         if ($this->m_score1 == $this->m_score2) {
-            switch ($this->m_score1) {
-                case 0:
-                    $score = "Love-All";
-                    break;
-                case 1:
-                    $score = "Fifteen-All";
-                    break;
-                case 2:
-                    $score = "Thirty-All";
-                    break;
-                default:
-                    $score = "Deuce";
-                    break;
-            }
-        } elseif ($this->m_score1 >= 4 || $this->m_score2 >= 4) {
-            $minusResult = $this->m_score1 - $this->m_score2;
-            if ($minusResult == 1) {
-                $score = "Advantage player1";
-            } elseif ($minusResult == -1) {
-                $score = "Advantage player2";
-            } elseif ($minusResult >= 2) {
-                $score = "Win for player1";
-            } else {
-                $score = "Win for player2";
-            }
-        } else {
-            for ($i = 1; $i < 3; $i++) {
-                if ($i == 1) {
-                    $tempScore = $this->m_score1;
-                } else {
-                    $score .= "-";
-                    $tempScore = $this->m_score2;
-                }
-                switch ($tempScore) {
-                    case 0:
-                        $score .= "Love";
-                        break;
-                    case 1:
-                        $score .= "Fifteen";
-                        break;
-                    case 2:
-                        $score .= "Thirty";
-                        break;
-                    case 3:
-                        $score .= "Forty";
-                        break;
-                }
-            }
+            $score = $this->deuceScenario();
         }
+        elseif ($this->m_score1 >= 4 || $this->m_score2 >= 4) {
+            $score = $this->winScenario();
+        }
+        else {
+            $score = $this->pointScenario();
+        }
+
         return $score;
     }
 }
