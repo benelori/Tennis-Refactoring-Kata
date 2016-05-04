@@ -6,11 +6,14 @@ class TennisGame1 implements TennisGame
     private $m_score2 = 0;
     private $player1Name = '';
     private $player2Name = '';
+    private $pointMap;
 
     public function __construct($player1Name, $player2Name)
     {
         $this->player1Name = $player1Name;
         $this->player2Name = $player2Name;
+
+        $this->pointMap = [PointType::Love(), PointType::Fifteen(), PointType::Thirty(), PointType::Forty()];
     }
 
     public function wonPoint($playerName)
@@ -23,7 +26,10 @@ class TennisGame1 implements TennisGame
     }
 
     private function deuceScenario() {
-        switch ($this->m_score1) {
+        $temp1 = $this->pointMap[$this->m_score1];
+        $temp2 = $this->pointMap[$this->m_score1];
+        $score = $temp1->resolvePoints($temp2);
+        /*switch ($this->m_score1) {
             case 0:
                 $score = "Love-All";
                 break;
@@ -36,7 +42,7 @@ class TennisGame1 implements TennisGame
             default:
                 $score = "Deuce";
                 break;
-        }
+        }*/
 
         return $score;
     }
@@ -71,7 +77,11 @@ class TennisGame1 implements TennisGame
     }
 
     private function pointScenario() {
-        return $this->appendScore($this->m_score1) . '-' . $this->appendScore($this->m_score2);
+        $temp1 = $this->pointMap[$this->m_score1];
+        $temp2 = $this->pointMap[$this->m_score2];
+        $score = $temp1->resolvePoints($temp2);
+
+        return $score;
     }
 
     private function appendScore($tempScore) {
@@ -95,10 +105,7 @@ class TennisGame1 implements TennisGame
 
     public function getScore()
     {
-        if ($this->m_score1 == $this->m_score2) {
-            $score = $this->deuceScenario();
-        }
-        elseif ($this->m_score1 >= 4 || $this->m_score2 >= 4) {
+        if ($this->m_score1 >= 4 || $this->m_score2 >= 4) {
             $score = $this->winScenario();
         }
         else {
@@ -107,5 +114,6 @@ class TennisGame1 implements TennisGame
 
         return $score;
     }
+
 }
 
